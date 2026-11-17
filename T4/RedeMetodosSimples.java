@@ -17,10 +17,19 @@ public class RedeMetodosSimples {
 
         int primeiroHost = rede[3] + 1;
         int ultimoHost = broadcast[3] - 1;
+        int[] faixaInicio = new int[]{rede[0], rede[1], rede[2], primeiroHost};
+        int[] faixaFim = new int[]{broadcast[0], broadcast[1], broadcast[2], ultimoHost};
 
-        System.out.println("Rede: " + formatarIP(rede));
-        System.out.println("Broadcast: " + formatarIP(broadcast));
-        System.out.println("Host: " + rede[0] + "." + rede[1] + "." + rede[2] + "." + primeiroHost + " a " + broadcast[0] + "." + broadcast[1] + "." + broadcast[2] + "." + ultimoHost);
+        int qtdHosts = (int) Math.pow(2, 32 - mascara) - 2;
+
+        System.out.println("Endereço IP (binário)    : " + formatarIPBinario(partes));
+        System.out.println("Máscara (prefixo)        : /" + mascara);
+        System.out.println("Máscara (decimal)        : " + formatarIP(intParaIp(mascaraParaInt(mascara))));
+        System.out.println("Máscara (binário)        : " + formatarIPBinario(intParaIp(mascaraParaInt(mascara))));
+        System.out.println("Endereço da rede         : " + formatarIP(rede));
+        System.out.println("Endereço de broadcast    : " + formatarIP(broadcast));
+        System.out.println("Quantidade de hosts      : " + qtdHosts);
+        System.out.println("Faixa de hosts           : " + formatarIP(faixaInicio) + " a " + formatarIP(faixaFim));
     }
 
     // Retorna a parte do IP antes da barra
@@ -30,7 +39,6 @@ public class RedeMetodosSimples {
 
     // Retorna a máscara depois da barra
     public static int pegarMascara(String entrada) {
-        //Pega a parte apos a barra e transforma em número inteiro.
         return Integer.parseInt(entrada.split("/")[1]);
     }
 
@@ -54,9 +62,8 @@ public class RedeMetodosSimples {
 
     // Calcula broadcast 
     public static int[] calcularBroadcast(int[] p, int mascara) {
-        int ipInt = ipParaInt(p);//converte esse IP para um inteiro de 32 bits
+        int ipInt = ipParaInt(p);
         int maskInt = mascaraParaInt(mascara);
-        //transforma todos os bits de host em 1
         return intParaIp(ipInt | ~maskInt);
     }
 
@@ -65,9 +72,9 @@ public class RedeMetodosSimples {
         return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
     }
 
-    // Converte máscara CIDR /m para inteiro 32 bits
+    // Converte mascara CIDR /m para inteiro 32 bits
     public static int mascaraParaInt(int m) {
-        return (int)(0xFFFFFFFF << (32 - m));
+        return (int) (0xFFFFFFFF << (32 - m));
     }
 
     // Converte inteiro 32 bits de volta para A.B.C.D
@@ -83,6 +90,21 @@ public class RedeMetodosSimples {
     // Formata A.B.C.D em string
     public static String formatarIP(int[] p) {
         return p[0] + "." + p[1] + "." + p[2] + "." + p[3];
+    }
+
+    // Formata IP em binario com 8 bits por octeto
+    public static String formatarIPBinario(int[] p) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 4; i++) {
+            String binario = String.format("%8s", Integer.toBinaryString(p[i])).replace(' ', '0');
+            sb.append(binario);
+            if (i < 3) {
+                sb.append(".");
+            }
+        }
+
+        return sb.toString();
     }
 }
 
